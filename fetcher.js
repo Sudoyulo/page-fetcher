@@ -1,45 +1,49 @@
 let uInput = process.argv.splice(2);
 const request = require('request');
 const fs = require('fs');
-// const readline = require('readline');
-// const { stdin: input, stdout: output } = require('process');
-// let rl = readline.createInterface({ input, output });
+const readline = require('readline');
+const { stdin: input, stdout: output } = require('process');
+let rl = readline.createInterface({ input, output });
 
 
 request(uInput[0], (error, response, body) => {
   //file already exists
-
-  // const path = require(uInput[1]);
-
-  // path.exists(uInput[1], function(exists) {
-  //   let wantToContinue = true;
-
-  //   if (exists) {
-  //     rl.question("File already exists. Do you wish to overwrite? Y/N ", (answer) => {
-  //       if (answer === "F") wantToContinue = false;
-  //       rl.close();
-  //     }); //  if n save as wantToContinue false else true
-
-  //   }
-   
-
-    // if (wantToContinue) {
-
-      fs.writeFile(uInput[1], body, err => {
-        if (err) {
-          return console.log("error");
-        }
-        const stats = fs.statSync(uInput[1]);
-        const fileSizeInBytes = stats.size;
-        
-        console.log(`Downloaded and saved ${fileSizeInBytes} to ${uInput[1]} `); // Print the HTML for the Google homepage.
+  let wantToContinue = true;
+ 
+  fs.readFile(uInput[1], 'utf8' , (err, data) => {
+    if (err) {
+      // console.log ("creating");
+      return;
+    } else {
+      rl.question("Already exists. Rewrite? Y/N: ", (answer) => {
+        if (answer === "N" || answer === "n") {
+          wantToContinue = false;
+          console.log("rewrite failed");
+        } else {
+          console.log("Rewriting");
+          wantToContinue = true;
+          
+          if (wantToContinue === true) {
+            console.log("made it");
     
-        //file written successfully
-      });
-    // }
-  // });
-
-
-  
-
-});
+            fs.writeFile(uInput[1], body, err => {
+              if (err) {
+                return console.log("error");
+              } else {
+    
+                const stats = fs.statSync(uInput[1]);
+                const fileSizeInBytes = stats.size;
+                
+                console.log(`Downloaded and saved ${fileSizeInBytes} to ${uInput[1]} `);
+              }
+            //file written successfully
+            }); //fs write file
+          } //if
+        }
+        rl.close();
+      });  //end question
+      //   }//end els
+      // }) // readfile async
+    } //else
+  });//path exist
+});//request
